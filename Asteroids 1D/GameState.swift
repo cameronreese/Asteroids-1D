@@ -9,7 +9,7 @@ import SwiftUI
 import SpriteKit
 
 struct GameState {
-    let ship: Ship
+    var ship: Ship
     var currentAsteroid: Asteroid? = nil
     var numberOfAsteroidsDestroyed: Int = 0
 }

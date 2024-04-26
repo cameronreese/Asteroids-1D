@@ -21,9 +21,20 @@ struct ContentView: View {
     }
     
     var body: some View {
-        SpriteView(scene: scene)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .edgesIgnoringSafeArea(.all)
+        ZStack {
+            SpriteView(scene: scene)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .edgesIgnoringSafeArea(.all)
+            
+            // Overlay a Text view
+            VStack {
+                Text("Asteroids 1D")
+                    .foregroundColor(.white)
+                    .font(.title)
+                    .padding()
+                Spacer()
+            }
+        }
     }
 }
 

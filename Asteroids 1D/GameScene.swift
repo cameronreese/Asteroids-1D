@@ -8,58 +8,72 @@
 import SwiftUI
 import SpriteKit
 
-let asteroidCategory: UInt32 = 0x1 << 1
-let shipCategory: UInt32 = 0x1 << 2
-
-class GameScene: SKScene, SKPhysicsContactDelegate {
+class GameScene: SKScene {
         
     var gameState: GameState = GameState(ship: Ship(node: SKSpriteNode(imageNamed: "Ship")))
-    let shipScale: CGFloat = 3.0
+    let shipScale: CGFloat = 0.5
     
     override func didMove(to view: SKView) {
-        physicsWorld.contactDelegate = self
-        
+        let movementRange: CGFloat = 2.5 // Adjust as needed
+        let tiltAngle: CGFloat = 0.01 // Adjust as needed
+
         // Set the scale of the ship sprite to make it larger
         self.gameState.ship.node.setScale(self.shipScale)
         
         // Set the ship's position to be centered horizontally and 100 points from the top
-        self.gameState.ship.node.position = CGPoint(x: self.size.width / 2, y: self.size.height / 4)
-        
-        // Setup the ship's physics body
-        self.gameState.ship.node.physicsBody = SKPhysicsBody(rectangleOf: self.gameState.ship.node.size)
-        self.gameState.ship.node.physicsBody?.isDynamic = false
-        self.gameState.ship.node.physicsBody?.categoryBitMask = shipCategory
-//        self.gameState.ship.node.physicsBody?.contactTestBitMask = 0
-        self.gameState.ship.node.physicsBody?.collisionBitMask = 0
+        self.gameState.ship.node.position = CGPoint(x: self.size.width / 2 + movementRange / 2, y: self.size.height / 5)
+        self.gameState.ship.node.zRotation = (tiltAngle / 2) * -1
         
         addChild(self.gameState.ship.node)
+        
+        // Set the anchor point of the ship sprite to its center
+        self.gameState.ship.node.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        
+        // Define the movement range and duration for side-to-side movement
+        let movementDuration: TimeInterval = 0.8
+
+        // Create the side-to-side movement action
+        let moveLeft = SKAction.moveBy(x: -movementRange, y: 0, duration: movementDuration / 2)
+        let moveRight = SKAction.moveBy(x: movementRange, y: 0, duration: movementDuration / 2)
+        let moveSequence = SKAction.sequence([moveLeft, moveRight])
+
+        // Define the rotation angle and duration for the tilt animation
+        let tiltDuration: TimeInterval = movementDuration / 2
+
+        // Create the rotation actions for tilting left and right
+        let tiltLeft = SKAction.rotate(byAngle: tiltAngle, duration: tiltDuration)
+        let tiltRight = SKAction.rotate(byAngle: -tiltAngle, duration: tiltDuration)
+        let tiltSequence = SKAction.sequence([tiltLeft, tiltRight])
+
+        // Combine the movement and rotation actions into a group action
+        let groupAction = SKAction.group([moveSequence, tiltSequence])
+
+        // Repeat the group action forever to create continuous animation
+        self.gameState.ship.node.run(SKAction.repeatForever(groupAction))
+                
+        if self.gameState.currentAsteroid == nil {
+            self.createAsteroid()
+        }
     }
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
-        if let asteroid = self.gameState.currentAsteroid {
-            if asteroid.node.position.y < 0 - asteroid.node.size.height {
-                asteroid.node.removeFromParent()
-                self.gameState.currentAsteroid = nil
-            }
-        }
-    }
-    
-    func didBegin(_ contact: SKPhysicsContact) {
-        print("Contact detected")
-        if var asteroid = self.gameState.currentAsteroid, asteroid.node == contact.bodyA.node {
-            asteroid.health = 0
-            if asteroid.health <= 0 {
-                asteroid.node.removeFromParent()
-                self.gameState.numberOfAsteroidsDestroyed += 1
-                self.gameState.currentAsteroid = nil
+        // If the asteroid comes into contact with the ship, remove the asteroid from the scene
+        if let asteroid = self.gameState.currentAsteroid, self.gameState.ship.node.intersects(asteroid.node) {
+            // Decrement the ship's health
+            self.gameState.ship.health -= 1
+            
+            // If the ship's health reaches 0, end the game
+            if self.gameState.ship.health == 0 {
+                print("Game Over")
+            } else {
+                destroyAndResetAsteroid()
             }
         }
         
-        if self.gameState.ship.node == contact.bodyA.node {
-            self.gameState.ship.health -= 1
-            if self.gameState.ship.health <= 0 {
-                self.gameState.ship.node.removeFromParent()
+        // If the asteroid goes below the screen, remove it from the scene
+        if let asteroid = self.gameState.currentAsteroid {
+            if asteroid.node.position.y < 0 - asteroid.node.size.height {
+                destroyAndResetAsteroid()
             }
         }
     }
@@ -68,32 +82,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
         print(location)
-        if self.gameState.currentAsteroid == nil {
+
+    }
+    
+    private func destroyAndResetAsteroid() {
+        if let asteroid = self.gameState.currentAsteroid {
+            asteroid.node.removeFromParent()
+            self.gameState.currentAsteroid = nil
+        }
+        
+        // Reset the asteroid after a delay
+        let waitAction = SKAction.wait(forDuration: 3.0)
+        let completionAction = SKAction.run {
             self.createAsteroid()
         }
+        let sequence = SKAction.sequence([waitAction, completionAction])
+        self.gameState.ship.node.run(sequence)
     }
     
     private func createAsteroid() {
         // Load the textures from the sprite atlas
-        let atlas = SKTextureAtlas(named: "Asteroid")
+        let atlas = SKTextureAtlas(named: "Asteroid-00")
         var textures: [SKTexture] = []
-        for index in 1...atlas.textureNames.count {
-            let textureName = String(format: "Asteroid-frame%02d", index)
+        for index in 0...atlas.textureNames.count - 1 {
+            let textureName = String(format: "spin-%02d", index)
             textures.append(atlas.textureNamed(textureName))
         }
         
         
         // Create a sprite node with the first texture as the initial texture
         let asteroidSprite = SKSpriteNode(texture: textures.first)
-        asteroidSprite.zRotation = -CGFloat.pi / 2
         asteroidSprite.position = CGPoint(x: size.width / 2, y: size.height / 2)
-        
-        // Set up the asteroid's physics body
-        asteroidSprite.physicsBody = SKPhysicsBody(rectangleOf: asteroidSprite.size)
-        asteroidSprite.physicsBody?.isDynamic = false
-        asteroidSprite.physicsBody?.categoryBitMask = asteroidCategory
-//        asteroidSprite.physicsBody?.contactTestBitMask = 1
-        asteroidSprite.physicsBody?.collisionBitMask = 0
         
         addChild(asteroidSprite)
         

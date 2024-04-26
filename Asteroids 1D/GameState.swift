@@ -8,10 +8,15 @@
 import SwiftUI
 import SpriteKit
 
-struct GameState {
-    var ship: Ship
-    var currentAsteroid: Asteroid? = nil
-    var numberOfAsteroidsDestroyed: Int = 0
+class GameState: ObservableObject {
+    
+    init(ship: Ship) {
+        self.ship = ship
+    }
+    
+    @Published var ship: Ship
+    @Published var currentAsteroid: Asteroid? = nil
+    @Published var numberOfAsteroidsDestroyed: Int = 0
 }
 
 protocol GameItem {

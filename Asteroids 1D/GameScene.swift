@@ -9,8 +9,17 @@ import SwiftUI
 import SpriteKit
 
 class GameScene: SKScene {
-        
-    var gameState: GameState = GameState(ship: Ship(node: SKSpriteNode(imageNamed: "Ship")))
+    
+    init(gameState: GameState) {
+        self.gameState = gameState
+        super.init(size: UIScreen.main.bounds.size)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    var gameState: GameState
     let shipScale: CGFloat = 0.5
     
     override func didMove(to view: SKView) {

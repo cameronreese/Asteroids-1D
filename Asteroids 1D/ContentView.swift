@@ -46,7 +46,7 @@ struct ContentView: View {
                     }
                     Spacer()
                     VStack {
-                        Text("\(gameState.numberOfAsteroidsDestroyed)")
+                        Text("\(gameState.ship.health)")
                             .foregroundColor(.green)
                             .font(.system(size: 72))
                         Text("Ship Health")

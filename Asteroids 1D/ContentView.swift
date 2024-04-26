@@ -32,17 +32,21 @@ struct ContentView: View {
             VStack {
                 HStack {
                     VStack {
-                        Text("42")
+                        Text("\(gameState.numberOfAsteroidsDestroyed)")
                             .foregroundColor(.blue)
                             .font(.system(size: 72))
-                        Text("Asteroids Destroyed")
+                        Text("Asteroids")
+                            .foregroundColor(.blue)
+                            .font(.subheadline)
+                            .padding(.horizontal)
+                        Text("Destroyed")
                             .foregroundColor(.blue)
                             .font(.subheadline)
                             .padding(.horizontal)
                     }
                     Spacer()
                     VStack {
-                        Text("10")
+                        Text("\(gameState.numberOfAsteroidsDestroyed)")
                             .foregroundColor(.green)
                             .font(.system(size: 72))
                         Text("Ship Health")
@@ -51,19 +55,16 @@ struct ContentView: View {
                             .padding(.horizontal)
                     }
 
-                    Spacer()
                 }
 
                 Spacer()
             }
-        }
-        .onAppear {
-            self.gameState = GameState(ship: Ship(node: SKSpriteNode(imageNamed: "Ship")))
         }
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(GameState(ship: Ship(node: SKSpriteNode(imageNamed: "Ship"))))
         .modelContainer(for: Item.self, inMemory: true)
 }

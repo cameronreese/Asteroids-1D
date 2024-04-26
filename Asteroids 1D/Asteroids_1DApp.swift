@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import SpriteKit
 
 @main
 struct Asteroids_1DApp: App {
@@ -26,6 +27,7 @@ struct Asteroids_1DApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(GameState(ship: Ship(node: SKSpriteNode(imageNamed: "Ship"))))
         }
         .modelContainer(sharedModelContainer)
     }

@@ -25,12 +25,9 @@ class GameScene: SKScene {
     let explosiveSpeed: TimeInterval = 5 // Smaller is faster
     let missileSpeed: TimeInterval = 1.5 // Smaller is faster
     
-    let explosionRadius: Int = 6 // TODO: compute this to be a value equal to the size of the asteroid, and change the size of the asteroid to be scaled to the size of the screen
-    
     var starsParticles: SKEmitterNode? = nil
     
     override func didMove(to view: SKView) {
-        
         // Create the stars background
         if let stars = SKEmitterNode(fileNamed: "Stars.sks") {
             stars.position = CGPoint(x: self.size.width / 2, y: self.size.height)
@@ -80,25 +77,31 @@ class GameScene: SKScene {
 
         // Repeat the group action forever to create continuous animation
         gameState.ship.node.run(SKAction.repeatForever(groupAction))
-                
-        if gameState.currentAsteroid == nil {
-            self.spawnAsteroid()
-        }
     }
     
     override func update(_ currentTime: TimeInterval) {
         // If the asteroid comes into contact with the ship, remove the asteroid from the scene
         if let asteroid = gameState.currentAsteroid, gameState.ship.node.intersects(asteroid.node) {
-            // Decrement the ship's health
-            gameState.ship.health -= 1
+            // Display a temporary label indicating the ship took evasive manuever and diverted away from the asteroid
+            let label = SKLabelNode(text: "Evasive Manuever!")
+            label.position = CGPoint(x: self.size.width / 2, y: self.size.height / 2)
+            label.fontSize = 30
+            label.fontColor = .white
+            addChild(label)
             
-            // If the ship's health reaches 0, end the game
-            if gameState.ship.health == 0 {
-                print("Game Over")
-            } else {
-                removeAsteroid()
-                resetShipChamber()
-            }
+            // Remove the asteroid from the scene
+            removeAsteroid()
+            
+            // Reset the ship's chamber
+            resetShipChamber()
+            
+            // Wait for a short duration before removing the label
+            label.run(SKAction.sequence([SKAction.wait(forDuration: 1.0), SKAction.removeFromParent()]))
+            
+            // Increment the number of evasive manuevers taken
+            gameState.numberOfEvasiveManeuvers += 1
+            
+            spawnAsteroid()
         }
         
         // If the explosive comes into contact with the asteroid, remove the explosive from the scene
@@ -114,7 +117,7 @@ class GameScene: SKScene {
             missile.node.removeFromParent()
             gameState.currentMissile = nil
             
-            if asteroid.health == 1 {
+            if asteroid.currentHealth == 1 {
                 removeAsteroid()
                 resetShipChamber()
             }
@@ -134,12 +137,35 @@ class GameScene: SKScene {
             
             // Check to see how close the explosion is to the asteroid
             if let asteroid = gameState.currentAsteroid {
-                let distance = asteroid.node.position.y - explosion.position.y
-                // TODO: use the explosionRadius to compute a damage based on "rings" of how close it is and decriment the asteroid accordingly. 
+                let distance = abs(asteroid.node.position.y - explosion.position.y)
+                
+                let percentDamage = computeDamage(distanceFromDamage: distance / gameState.difficultyLevel.rawValue, sizeOfEntity: (asteroid.node.size.width + asteroid.node.size.height) / 2)
+                
+                if percentDamage > 0 {
+                    gameState.currentAsteroid?.currentHealth -= Int(percentDamage * Double(asteroid.maxHealth))
+                }
+                
+                if gameState.currentAsteroid?.currentHealth ?? defaultHealth <= 0 {
+                    removeAsteroid()
+                    resetShipChamber()
+                    gameState.numberOfAsteroidsDestroyed += 1
+                }
+            }
+            
+            // Check to see how close the explosion is to the ship
+            let distance = abs(gameState.ship.node.position.y - explosion.position.y)
+            
+            let percentDamage = computeDamage(distanceFromDamage: distance, sizeOfEntity: (gameState.ship.node.size.width + gameState.ship.node.size.height) / 2)
+            
+            if percentDamage > 0 {
+                gameState.ship.currentHealth -= Int(percentDamage * Double(gameState.ship.maxHealth))
+            }
+            
+            if gameState.ship.currentHealth <= 0 {
+                gameOver()
             }
         }
-        
-        
+                
         // If the asteroid goes below the screen, remove it from the scene
         if let asteroid = gameState.currentAsteroid {
             if asteroid.node.position.y < 0 - asteroid.node.size.height {
@@ -154,6 +180,19 @@ class GameScene: SKScene {
         let location = touch.location(in: self)
         print(location)
         
+        switch gameState.gameSequence {
+        case .start:
+            gameState.gameSequence = .gameInProgress
+            startGame()
+        case .gameOver:
+            resetGameState()
+            gameState.gameSequence = .start
+        case .gameInProgress:
+            fallthrough
+        default:
+            break
+        }
+        
         if gameState.currentAsteroid == nil {
             // Create a new asteroid if there isn't one already
             resetShipChamber()
@@ -163,11 +202,32 @@ class GameScene: SKScene {
         
         switch gameState.ship.fire() {
         case .explosive:
-            print("Explosive shot fired")
-            gameState.currentExplosive = Explosive(node: spawnExplosive(), health: 1)
+            gameState.currentExplosive = Explosive(node: spawnExplosive())
         case .missile:
-            print("Missile fired")
-            gameState.currentMissile = Missile(node: spawnMissile(), health: 1)
+            gameState.currentMissile = Missile(node: spawnMissile())
+        }
+    }
+    
+    private func computeDamage(distanceFromDamage: CGFloat, sizeOfEntity: CGFloat) -> Double {
+        if sizeOfEntity <= 0 {
+            return 0
+        }
+        
+        if distanceFromDamage <= 0 {
+            return 1
+        }
+        
+        switch distanceFromDamage / sizeOfEntity {
+        case 0.0..<0.25:
+            return 1.0
+        case 0.25..<0.5:
+            return 0.75
+        case 0.5..<0.75:
+            return 0.5
+        case 0.75...1.0:
+            return 0.25
+        default:
+            return 0.0
         }
     }
     
@@ -177,6 +237,20 @@ class GameScene: SKScene {
             gameState.currentAsteroid = nil
         }
         
+    }
+    
+    private func removeExplosive() {
+        if let explosive = gameState.currentExplosive {
+            explosive.node.removeFromParent()
+            gameState.currentExplosive = nil
+        }
+    }
+    
+    private func removeMissile() {
+        if let missile = gameState.currentMissile {
+            missile.node.removeFromParent()
+            gameState.currentMissile = nil
+        }
     }
     
     private func resetShipChamber() {
@@ -197,7 +271,7 @@ class GameScene: SKScene {
         asteroidSprite.position = CGPoint(x: size.width / 2, y: size.height / 2)
         
         addChild(asteroidSprite)
-        
+                
         // Define the movement action
         let moveAction = SKAction.move(by: CGVector(dx: 0, dy: -size.height), duration: TimeInterval(arc4random_uniform(6) + 6)) // Move from top to bottom anywhere between 6 and 12 seconds
         
@@ -207,7 +281,7 @@ class GameScene: SKScene {
         // Repeat the animation forever
         asteroidSprite.run(SKAction.group([animationAction, moveAction]))
         
-        gameState.currentAsteroid = Asteroid(node: asteroidSprite, health: 3)
+        gameState.currentAsteroid = Asteroid(node: asteroidSprite)
         gameState.currentAsteroid?.node.position = CGPoint(x: self.size.width / 2, y: self.size.height + asteroidSprite.size.height / 2)
     }
     
@@ -246,7 +320,7 @@ class GameScene: SKScene {
         
         addChild(missile)
         
-        let animationAction = SKAction.repeatForever(SKAction.animate(with: textures, timePerFrame: 0.1))
+        let animationAction = SKAction.repeatForever(SKAction.animate(with: textures, timePerFrame: 0.25))
         let moveAction = SKAction.move(by: CGVector(dx: 0, dy: self.size.height), duration: missileSpeed)
         
         let removeAction = SKAction.removeFromParent()
@@ -267,10 +341,35 @@ class GameScene: SKScene {
         explosion.position = position
         addChild(explosion)
         
-        let animationAction = SKAction.animate(with: textures, timePerFrame: 0.1)
+        let animationAction = SKAction.animate(with: textures, timePerFrame: 0.07)
         explosion.run(animationAction)
         
         return explosion
+    }
+    
+    private func gameOver() {
+        removeAsteroid()
+        removeMissile()
+        removeExplosive()
+        gameState.gameSequence = .gameOver
+    }
+    
+    private func startGame() {
+        gameState.gameSequence = .gameInProgress
+                
+        if gameState.currentAsteroid == nil {
+            self.spawnAsteroid()
+        }
+    }
+    
+    private func resetGameState() {
+        gameState.ship.currentHealth = gameState.ship.maxHealth
+        resetShipChamber()
+        gameState.numberOfAsteroidsDestroyed = 0
+        gameState.numberOfAsteroidsSpawned = 0
+        gameState.numberOfMissilesFired = 0
+        gameState.numberOfExplosivesFired = 0
+        gameState.numberOfEvasiveManeuvers = 0
     }
 }
 

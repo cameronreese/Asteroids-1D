@@ -14,6 +14,28 @@ struct ContentView: View {
     
     @EnvironmentObject() var gameState: GameState
     
+    var gameText: String {
+        switch gameState.gameSequence {
+        case .start:
+            return "Tap to start"
+        case .gameInProgress:
+            return ""
+        case .gameOver:
+            return "Game Over"
+        }
+    }
+    
+    var gameTextColor: Color {
+        switch gameState.gameSequence {
+        case .start:
+            return .gray
+        case .gameInProgress:
+            return .clear
+        case .gameOver:
+            return .red
+        }
+    }
+    
     var scene: SKScene {
         let scene = GameScene(gameState: gameState)
         scene.view?.showsPhysics = true // Show physics debug information
@@ -43,10 +65,14 @@ struct ContentView: View {
                             .foregroundColor(.blue)
                             .font(.subheadline)
                             .padding(.horizontal)
+                        Text("Asteroid Health: \(gameState.currentAsteroid?.currentHealth ?? 0)%")
+                            .foregroundColor(.blue)
+                            .font(.body)
+                            .padding()
                     }
                     Spacer()
                     VStack {
-                        Text("\(gameState.ship.health)")
+                        Text("\(gameState.ship.currentHealth)")
                             .foregroundColor(.green)
                             .font(.system(size: 72))
                         Text("Ship Health")
@@ -58,6 +84,12 @@ struct ContentView: View {
 
                 Spacer()
             }
+            
+            Text(gameText)
+                .foregroundColor(gameTextColor)
+                .font(.title)
+                .fontWeight(.bold)
+                .padding()
         }
     }
 }

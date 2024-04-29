@@ -8,6 +8,8 @@
 import SwiftUI
 import SpriteKit
 
+let defaultHealth = 100
+
 class GameState: ObservableObject {
     
     init(ship: Ship) {
@@ -23,18 +25,20 @@ class GameState: ObservableObject {
     @Published var numberOfMissilesFired: Int = 0
     @Published var numberOfExplosivesFired: Int = 0
     @Published var numberOfAsteroidsSpawned: Int = 0
-    
+    @Published var gameSequence: GameSequence = .start
+    let difficultyLevel: DifficultyLevel = .medium
 }
 
 protocol GameItem {
     var node: SKSpriteNode { get }
-    var health: Int { get set }
+    var maxHealth: Int { get }
+    var currentHealth: Int { get set }
 }
 
 struct Ship: GameItem  {
     let node: SKSpriteNode
-    
-    var health: Int = 10
+    let maxHealth: Int = defaultHealth
+    var currentHealth: Int = defaultHealth
     
     var chamber: Projectile = .explosive
     
@@ -51,24 +55,43 @@ struct Ship: GameItem  {
 }
 
 struct Asteroid: GameItem {
+    var maxHealth: Int = defaultHealth
+    
     var node: SKSpriteNode
     
-    var health: Int
+    var currentHealth: Int = defaultHealth
 }
 
 struct Explosive: GameItem {
+    var maxHealth: Int = 1
+    
     var node: SKSpriteNode
     
-    var health: Int
+    var currentHealth: Int = 1
 }
 
 struct Missile: GameItem {
+    var maxHealth: Int = 1
+    
     var node: SKSpriteNode
     
-    var health: Int
+    var currentHealth: Int = 1
 }
 
 enum Projectile {
     case explosive,
          missile
+}
+
+enum GameSequence {
+    case start,
+         gameInProgress,
+         gameOver
+}
+
+enum DifficultyLevel: Double {
+    case easy = 2.5,
+         medium = 2.0,
+         hard = 1.5,
+         insane = 1.0
 }

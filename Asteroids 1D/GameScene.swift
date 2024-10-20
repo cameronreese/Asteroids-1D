@@ -62,7 +62,7 @@ class GameScene: SKScene {
         // Create the side-to-side movement action
         let moveLeft = SKAction.moveBy(x: -movementRange, y: 0, duration: movementDuration / 2)
         let moveRight = SKAction.moveBy(x: movementRange, y: 0, duration: movementDuration / 2)
-        let moveSequence = SKAction.sequence([moveLeft, moveRight])
+        let horizontalMoveSequence = SKAction.sequence([moveLeft, moveRight])
 
         // Define the rotation angle and duration for the tilt animation
         let tiltDuration: TimeInterval = movementDuration / 2
@@ -71,9 +71,14 @@ class GameScene: SKScene {
         let tiltLeft = SKAction.rotate(byAngle: tiltAngle, duration: tiltDuration)
         let tiltRight = SKAction.rotate(byAngle: -tiltAngle, duration: tiltDuration)
         let tiltSequence = SKAction.sequence([tiltLeft, tiltRight])
+        
+        // Create the back and forth rocking motion for subtly moving forward and backward
+        let moveForward = SKAction.move(by: CGVector(dx: 0, dy: movementRange), duration: movementDuration / 2)
+        let moveBackward = SKAction.move(by: CGVector(dx: 0, dy: -movementRange), duration: movementDuration / 2)
+        let verticalMoveSequence = SKAction.sequence([moveForward, moveBackward])
 
         // Combine the movement and rotation actions into a group action
-        let groupAction = SKAction.group([moveSequence, tiltSequence])
+        let groupAction = SKAction.group([horizontalMoveSequence, verticalMoveSequence, tiltSequence])
 
         // Repeat the group action forever to create continuous animation
         gameState.ship.node.run(SKAction.repeatForever(groupAction))
@@ -90,7 +95,7 @@ class GameScene: SKScene {
             addChild(label)
             
             // Remove the asteroid from the scene
-            removeAsteroid()
+            removeAsteroid()                        
             
             // Reset the ship's chamber
             resetShipChamber()
@@ -100,6 +105,12 @@ class GameScene: SKScene {
             
             // Increment the number of evasive manuevers taken
             gameState.numberOfEvasiveManeuvers += 1
+            
+            // If the current number of evasive manuevers is now more than the max, perform a game over.
+            if gameState.numberOfEvasiveManeuvers > maxNumberOfEnvasiveManeuvers {
+                gameOver()
+                return
+            }
             
             spawnAsteroid()
         }
@@ -142,7 +153,7 @@ class GameScene: SKScene {
                 let percentDamage = computeDamage(distanceFromDamage: distance / gameState.difficultyLevel.rawValue, sizeOfEntity: (asteroid.node.size.width + asteroid.node.size.height) / 2)
                 
                 if percentDamage > 0 {
-                    gameState.currentAsteroid?.currentHealth -= Int(percentDamage * Double(asteroid.maxHealth))
+                    gameState.currentAsteroid?.currentHealth = max(0, (gameState.currentAsteroid?.currentHealth ?? 0) - Int(percentDamage * Double(asteroid.maxHealth)))
                 }
                 
                 if gameState.currentAsteroid?.currentHealth ?? defaultHealth <= 0 {
@@ -158,7 +169,7 @@ class GameScene: SKScene {
             let percentDamage = computeDamage(distanceFromDamage: distance, sizeOfEntity: (gameState.ship.node.size.width + gameState.ship.node.size.height) / 2)
             
             if percentDamage > 0 {
-                gameState.ship.currentHealth -= Int(percentDamage * Double(gameState.ship.maxHealth))
+                gameState.ship.currentHealth = max(0, gameState.ship.currentHealth - Int(percentDamage * Double(gameState.ship.maxHealth)))
             }
             
             if gameState.ship.currentHealth <= 0 {
@@ -236,7 +247,6 @@ class GameScene: SKScene {
             asteroid.node.removeFromParent()
             gameState.currentAsteroid = nil
         }
-        
     }
     
     private func removeExplosive() {

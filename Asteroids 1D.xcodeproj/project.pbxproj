@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7E55C1482CC46B420014EA97 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E55C1472CC46B420014EA97 /* OverlayView.swift */; };
+		7E55C14A2CC46F170014EA97 /* VerticalHealthBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E55C1492CC46EFF0014EA97 /* VerticalHealthBarView.swift */; };
 		7E6DCFBF2BCF7F6D00A192DA /* Asteroids_1DApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E6DCFBE2BCF7F6D00A192DA /* Asteroids_1DApp.swift */; };
 		7E6DCFC12BCF7F6D00A192DA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E6DCFC02BCF7F6D00A192DA /* ContentView.swift */; };
 		7E6DCFC32BCF7F6D00A192DA /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E6DCFC22BCF7F6D00A192DA /* Item.swift */; };
@@ -20,6 +22,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7E55C1472CC46B420014EA97 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
+		7E55C1492CC46EFF0014EA97 /* VerticalHealthBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalHealthBarView.swift; sourceTree = "<group>"; };
 		7E6DCFBB2BCF7F6D00A192DA /* Asteroids 1D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Asteroids 1D.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E6DCFBE2BCF7F6D00A192DA /* Asteroids_1DApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Asteroids_1DApp.swift; sourceTree = "<group>"; };
 		7E6DCFC02BCF7F6D00A192DA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -64,8 +68,10 @@
 		7E6DCFBD2BCF7F6D00A192DA /* Asteroids 1D */ = {
 			isa = PBXGroup;
 			children = (
+				7E55C1492CC46EFF0014EA97 /* VerticalHealthBarView.swift */,
 				7E6DCFBE2BCF7F6D00A192DA /* Asteroids_1DApp.swift */,
 				7E6DCFC02BCF7F6D00A192DA /* ContentView.swift */,
+				7E55C1472CC46B420014EA97 /* OverlayView.swift */,
 				7E6DCFCF2BCF817600A192DA /* GameScene.swift */,
 				7E6DCFD32BDD6DD500A192DA /* Fire.sks */,
 				7E6DCFE52BDD79AE00A192DA /* Stars.sks */,
@@ -115,7 +121,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1530;
-				LastUpgradeCheck = 1530;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					7E6DCFBA2BCF7F6D00A192DA = {
 						CreatedOnToolsVersion = 15.3;
@@ -160,7 +166,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E55C14A2CC46F170014EA97 /* VerticalHealthBarView.swift in Sources */,
 				7E6DCFC12BCF7F6D00A192DA /* ContentView.swift in Sources */,
+				7E55C1482CC46B420014EA97 /* OverlayView.swift in Sources */,
 				7E6DCFD02BCF817600A192DA /* GameScene.swift in Sources */,
 				7E6DCFD22BCF81F700A192DA /* GameState.swift in Sources */,
 				7E6DCFC32BCF7F6D00A192DA /* Item.swift in Sources */,
@@ -205,6 +213,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -266,6 +275,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -293,6 +303,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Asteroids 1D/Asteroids_1D.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Asteroids 1D/Preview Content\"";
 				DEVELOPMENT_TEAM = 99MB6TWRUA;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -308,17 +319,17 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.itertaining.Asteroids-1D";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -331,6 +342,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Asteroids 1D/Asteroids_1D.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Asteroids 1D/Preview Content\"";
 				DEVELOPMENT_TEAM = 99MB6TWRUA;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -346,17 +358,17 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.itertaining.Asteroids-1D";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

@@ -9,6 +9,7 @@ import SwiftUI
 import SpriteKit
 
 let defaultHealth = 100
+let maxNumberOfEnvasiveManeuvers = 4
 
 class GameState: ObservableObject {
     
@@ -56,25 +57,19 @@ struct Ship: GameItem  {
 
 struct Asteroid: GameItem {
     var maxHealth: Int = defaultHealth
-    
     var node: SKSpriteNode
-    
     var currentHealth: Int = defaultHealth
 }
 
 struct Explosive: GameItem {
     var maxHealth: Int = 1
-    
     var node: SKSpriteNode
-    
     var currentHealth: Int = 1
 }
 
 struct Missile: GameItem {
     var maxHealth: Int = 1
-    
     var node: SKSpriteNode
-    
     var currentHealth: Int = 1
 }
 

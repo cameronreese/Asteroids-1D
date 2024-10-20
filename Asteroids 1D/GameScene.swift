@@ -71,14 +71,9 @@ class GameScene: SKScene {
         let tiltLeft = SKAction.rotate(byAngle: tiltAngle, duration: tiltDuration)
         let tiltRight = SKAction.rotate(byAngle: -tiltAngle, duration: tiltDuration)
         let tiltSequence = SKAction.sequence([tiltLeft, tiltRight])
-        
-        // Create the back and forth rocking motion for subtly moving forward and backward
-        let moveForward = SKAction.move(by: CGVector(dx: 0, dy: movementRange), duration: movementDuration / 2)
-        let moveBackward = SKAction.move(by: CGVector(dx: 0, dy: -movementRange), duration: movementDuration / 2)
-        let verticalMoveSequence = SKAction.sequence([moveForward, moveBackward])
 
         // Combine the movement and rotation actions into a group action
-        let groupAction = SKAction.group([horizontalMoveSequence, verticalMoveSequence, tiltSequence])
+        let groupAction = SKAction.group([horizontalMoveSequence, tiltSequence])
 
         // Repeat the group action forever to create continuous animation
         gameState.ship.node.run(SKAction.repeatForever(groupAction))
